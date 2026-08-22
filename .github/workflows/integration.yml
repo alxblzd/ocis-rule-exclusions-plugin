@@ -1,0 +1,12 @@
+---
+# Personal repository CI only. No secrets are passed to the reusable workflow,
+# and the job has read-only access to this repository.
+on: [push, pull_request] # yamllint disable-line rule:truthy
+name: Personal repository integration tests
+
+permissions:
+  contents: read
+
+jobs:
+  integration-tests:
+    uses: coreruleset/crs-plugin-test-action/.github/workflows/integration.yaml@81cb7f29881911c56f33a82d1e25dc26e0e13636 # v3.0.2

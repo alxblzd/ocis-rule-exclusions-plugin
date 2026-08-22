@@ -1,0 +1,50 @@
+---
+meta:
+  author: "alxblzd"
+  description: "oCIS WebDAV request methods"
+rule_id: 9542200
+tests:
+  - test_id: 1
+    desc: Allow a DAV PUT request
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            Content-Type: text/plain
+          port: 80
+          method: PUT
+          uri: /dav/spaces/space-id/file.txt
+          data: test
+        output:
+          log:
+            no_expect_ids: [911100]
+  - test_id: 2
+    desc: Allow a DAV DELETE request
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+          port: 80
+          method: DELETE
+          uri: /dav/spaces/space-id/file.txt
+        output:
+          log:
+            no_expect_ids: [911100]
+  - test_id: 3
+    desc: Keep method exclusions scoped to DAV paths
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+          port: 80
+          method: DELETE
+          uri: /unrelated/path
+        output:
+          log:
+            expect_ids: [911100]

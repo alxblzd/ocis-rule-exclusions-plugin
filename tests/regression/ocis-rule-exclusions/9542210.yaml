@@ -1,0 +1,36 @@
+---
+meta:
+  author: "alxblzd"
+  description: "oCIS TUS upload requests"
+rule_id: 9542210
+tests:
+  - test_id: 1
+    desc: Allow a TUS PATCH request
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            Content-Type: application/offset+octet-stream
+          port: 80
+          method: PATCH
+          uri: /data/upload-token
+          data: test
+        output:
+          log:
+            no_expect_ids: [911100]
+  - test_id: 2
+    desc: Keep the method policy outside TUS endpoints
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+          port: 80
+          method: PATCH
+          uri: /unrelated/path
+        output:
+          log:
+            expect_ids: [911100]

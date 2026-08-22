@@ -1,0 +1,21 @@
+---
+meta:
+  author: "alxblzd"
+  description: "oCIS TUS upload creation"
+rule_id: 9542211
+tests:
+  - test_id: 1
+    desc: Allow creation of a TUS upload without Content-Type
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+          port: 80
+          method: PUT
+          uri: /data
+          data: opaque-upload-body
+        output:
+          log:
+            no_expect_ids: [920340, 920640]

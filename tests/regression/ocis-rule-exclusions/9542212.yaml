@@ -1,0 +1,54 @@
+---
+meta:
+  author: "alxblzd"
+  description: "oCIS opaque binary upload bodies"
+rule_id: 9542212
+tests:
+  - test_id: 1
+    desc: Allow a TUS binary chunk
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            Content-Type: application/offset+octet-stream
+          port: 80
+          method: PATCH
+          uri: /data/upload-token
+          data: "binary%00payload%0D%0A"
+        output:
+          log:
+            no_expect_ids: [920250, 920270, 920420, 921150]
+  - test_id: 2
+    desc: Allow an oCIS binary upload to a space
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            Content-Type: application/offset+octet-stream
+          port: 80
+          method: POST
+          uri: /dav/spaces/storage-id$item-id
+          data: "binary%00payload%0D%0A"
+        output:
+          log:
+            no_expect_ids: [920250, 920270, 920420, 921150]
+  - test_id: 3
+    desc: Keep the content-type policy outside upload endpoints
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            Content-Type: application/offset+octet-stream
+          port: 80
+          method: POST
+          uri: /unrelated/path
+          data: test
+        output:
+          log:
+            expect_ids: [920420]
