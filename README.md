@@ -16,10 +16,10 @@ Compatibility can vary between oCIS and CRS releases. Test the plugin in a non-p
 
 ## Covered false positives
 
-Version 0.1.0 covers the following oCIS workflows observed in this deployment:
+Version 0.1.1 covers the following oCIS workflows observed in this deployment:
 
 - loading `/config.json` or `/web/config.json`, which can trigger CRS rule `930130`;
-- using OData `$filter` parameters on supported Graph endpoints, which can trigger CRS rule `942290`;
+- using OData `$filter` and `$orderby` parameters on supported Graph endpoints, which can trigger CRS rule `942290`;
 - using WebDAV methods below `/dav/`, which can trigger CRS rule `911100`;
 - creating and uploading files through TUS endpoints below `/data`, which can trigger CRS rules `911100`, `920340`, `920420`, and `920640`;
 - uploading arbitrary binary content that would otherwise be parsed as form arguments and trigger request-body rules; and
