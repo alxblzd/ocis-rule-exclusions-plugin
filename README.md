@@ -16,7 +16,7 @@ Compatibility can vary between oCIS and CRS releases. Test the plugin in a non-p
 
 ## Covered false positives
 
-Version 0.1.2 covers the following oCIS workflows observed in this deployment:
+Version 0.1.3 covers the following oCIS workflows observed in this deployment:
 
 - loading `/config.json` or `/web/config.json`, which can trigger CRS rule `930130`;
 - using OData `$filter` and `$orderby` parameters on supported Graph endpoints, which can trigger CRS rule `942290`;

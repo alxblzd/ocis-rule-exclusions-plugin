@@ -52,3 +52,20 @@ tests:
         output:
           log:
             expect_ids: [920420]
+  - test_id: 4
+    desc: Allow an oCIS binary upload to a folder below a space
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            Content-Type: application/offset+octet-stream
+            Tus-Resumable: 1.0.0
+          port: 80
+          method: POST
+          uri: /dav/spaces/storage-id$item-id/1-WORK
+          data: "PDF%00payload%0D%0A"
+        output:
+          log:
+            no_expect_ids: [920250, 920270, 920420, 921150]
