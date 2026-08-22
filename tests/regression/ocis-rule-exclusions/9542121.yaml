@@ -1,0 +1,38 @@
+---
+meta:
+  author: "alxblzd"
+  description: "oCIS Graph user updates"
+rule_id: 9542121
+tests:
+  - test_id: 1
+    desc: Allow PATCH when updating one oCIS user
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            Content-Type: application/json
+          port: 80
+          method: PATCH
+          uri: /graph/v1.0/users/7dd0dc02-09de-42cc-b11e-e2ae64aba3b1
+          data: '{"passwordProfile":{"forceChangePasswordNextSignIn":false,"password":"Example-Password-123!"}}'
+        output:
+          log:
+            no_expect_ids: [911100]
+  - test_id: 2
+    desc: Keep the PATCH method policy outside individual Graph users
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            Content-Type: application/json
+          port: 80
+          method: PATCH
+          uri: /graph/v1.0/groups/group-id
+          data: '{}'
+        output:
+          log:
+            expect_ids: [911100]
