@@ -1,0 +1,38 @@
+---
+meta:
+  author: "alxblzd"
+  description: "Markdown note bodies saved through oCIS WebDAV"
+rule_id: 9542202
+tests:
+  - test_id: 1
+    desc: Allow XML-parsed Markdown note content below the spaces DAV endpoint
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            Content-Type: application/xml; charset=utf-8
+          port: 80
+          method: PUT
+          uri: /dav/spaces/storage-id$item-id/Notes.md
+          data: "<note>curl /etc/passwd</note>"
+        output:
+          log:
+            no_expect_ids: [930120, 932235, 932260]
+  - test_id: 2
+    desc: Keep XML body inspection outside Markdown files in oCIS spaces
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            Content-Type: application/xml; charset=utf-8
+          port: 80
+          method: PUT
+          uri: /dav/spaces/storage-id$item-id/Notes.xml
+          data: "<note>curl /etc/passwd</note>"
+        output:
+          log:
+            expect_ids: [930120, 932235, 932260]
