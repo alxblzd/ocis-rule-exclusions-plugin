@@ -16,7 +16,7 @@ tests:
           port: 80
           method: PUT
           uri: /dav/spaces/storage-id$item-id/Notes.md
-          data: "<note>curl /etc/passwd</note>"
+          data: "<note>/etc/passwd; find /etc -name passwd -exec cat {} +; printf dW5hbWUgLWE= | base64 -d | sh</note>"
         output:
           log:
             no_expect_ids: [930120, 932235, 932260]
@@ -32,7 +32,7 @@ tests:
           port: 80
           method: PUT
           uri: /dav/spaces/storage-id$item-id/Notes.xml
-          data: "<note>curl /etc/passwd</note>"
+          data: "<note>/etc/passwd; find /etc -name passwd -exec cat {} +; printf dW5hbWUgLWE= | base64 -d | sh</note>"
         output:
           log:
             expect_ids: [930120, 932235, 932260]
