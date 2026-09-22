@@ -19,7 +19,7 @@ tests:
           data: '{"passwordProfile":{"forceChangePasswordNextSignIn":false,"password":"Example-Password-123!"}}'
         output:
           log:
-            no_expect_ids: [911100]
+            no_expect_ids: [911100, 949110]
   - test_id: 2
     desc: Keep the PATCH method policy outside individual Graph users
     stages:

@@ -1,0 +1,127 @@
+---
+meta:
+  author: alxblzd
+  description: oCIS DAV XML file search
+rule_id: 9542203
+tests:
+- test_id: 1
+  desc: Allow oCIS file search
+  stages:
+  - input:
+      dest_addr: 127.0.0.1
+      headers:
+        Host: localhost
+        User-Agent: OWASP CRS
+        Content-Type: application/xml; charset=utf-8
+      port: 80
+      method: REPORT
+      uri: /dav/spaces
+      data: <?xml version="1.0"?><oc:search-files xmlns:oc="http://owncloud.org/ns"><oc:search-pattern>name:"*c*"</oc:search-pattern></oc:search-files>
+    output:
+      log:
+        no_expect_ids:
+        - 942100
+        - 949110
+- test_id: 2
+  desc: Keep SQL detector for other methods
+  stages:
+  - input:
+      dest_addr: 127.0.0.1
+      headers:
+        Host: localhost
+        User-Agent: OWASP CRS
+        Content-Type: application/xml
+      port: 80
+      method: POST
+      uri: /dav/spaces
+      data: <?xml version="1.0"?><oc:search-files xmlns:oc="http://owncloud.org/ns"><oc:search-pattern>name:"*c*"</oc:search-pattern></oc:search-files>
+    output:
+      log:
+        expect_ids:
+        - 942100
+- test_id: 3
+  desc: Keep SQL detector for other endpoints
+  stages:
+  - input:
+      dest_addr: 127.0.0.1
+      headers:
+        Host: localhost
+        User-Agent: OWASP CRS
+        Content-Type: application/xml
+      port: 80
+      method: REPORT
+      uri: /dav/spaces/other
+      data: <?xml version="1.0"?><oc:search-files xmlns:oc="http://owncloud.org/ns"><oc:search-pattern>name:"*c*"</oc:search-pattern></oc:search-files>
+    output:
+      log:
+        expect_ids:
+        - 942100
+- test_id: 4
+  desc: Keep SQL detector for query arguments
+  stages:
+  - input:
+      dest_addr: 127.0.0.1
+      headers:
+        Host: localhost
+        User-Agent: OWASP CRS
+        Content-Type: application/xml
+      port: 80
+      method: REPORT
+      uri: /dav/spaces?q=1%27%20OR%20%271%27%3D%271
+      data: <?xml version="1.0"?><oc:search-files xmlns:oc="http://owncloud.org/ns"><oc:search-pattern>name:"*c*"</oc:search-pattern></oc:search-files>
+    output:
+      log:
+        expect_ids:
+        - 942100
+- test_id: 5
+  desc: Keep XML command inspection
+  stages:
+  - input:
+      dest_addr: 127.0.0.1
+      headers:
+        Host: localhost
+        User-Agent: OWASP CRS
+        Content-Type: application/xml
+      port: 80
+      method: REPORT
+      uri: /dav/spaces
+      data: <?xml version="1.0"?><oc:search-files xmlns:oc="http://owncloud.org/ns"><oc:search-pattern>/etc/passwd</oc:search-pattern></oc:search-files>
+    output:
+      log:
+        expect_ids:
+        - 930120
+- test_id: 6
+  desc: Allow XML media type case variation
+  stages:
+  - input:
+      dest_addr: 127.0.0.1
+      headers:
+        Host: localhost
+        User-Agent: OWASP CRS
+        Content-Type: Application/XML
+      port: 80
+      method: REPORT
+      uri: /dav/spaces
+      data: <?xml version="1.0"?><oc:search-files xmlns:oc="http://owncloud.org/ns"><oc:search-pattern>name:"*c*"</oc:search-pattern></oc:search-files>
+    output:
+      log:
+        no_expect_ids:
+        - 942100
+        - 949110
+- test_id: 7
+  desc: Keep XML detector for neighboring media type
+  stages:
+  - input:
+      dest_addr: 127.0.0.1
+      headers:
+        Host: localhost
+        User-Agent: OWASP CRS
+        Content-Type: application/xmlfoobar
+      port: 80
+      method: REPORT
+      uri: /dav/spaces
+      data: <?xml version="1.0"?><oc:search-files xmlns:oc="http://owncloud.org/ns"><oc:search-pattern>name:"*c*"</oc:search-pattern></oc:search-files>
+    output:
+      log:
+        expect_ids:
+        - 942100

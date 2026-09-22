@@ -19,7 +19,7 @@ tests:
           data: test
         output:
           log:
-            no_expect_ids: [911100]
+            no_expect_ids: [911100, 949110]
   - test_id: 2
     desc: Allow a DAV DELETE request
     stages:
@@ -33,7 +33,7 @@ tests:
           uri: /dav/spaces/space-id/file.txt
         output:
           log:
-            no_expect_ids: [911100]
+            no_expect_ids: [911100, 949110]
   - test_id: 3
     desc: Keep method exclusions scoped to DAV paths
     stages:

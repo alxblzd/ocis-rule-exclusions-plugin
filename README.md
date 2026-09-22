@@ -16,15 +16,17 @@ Compatibility can vary between oCIS and CRS releases. Test the plugin in a non-p
 
 ## Covered false positives
 
-Version 0.1.4 covers the following oCIS workflows observed in this deployment:
+Version 0.1.5 covers the following oCIS workflows observed in this deployment:
 
 - loading `/config.json` or `/web/config.json`, which can trigger CRS rule `930130`;
 - using OData `$filter` and `$orderby` parameters on supported Graph endpoints, which can trigger CRS rule `942290`;
 - updating users through the Graph API, including password changes, which can trigger CRS rule `911100` on the `PATCH` method;
 - using WebDAV methods below `/dav/`, which can trigger CRS rule `911100`;
-- saving Markdown notes through WebDAV, whose XML-parsed content can trigger CRS rules `930120`, `932235`, and `932260`;
+- searching files with `REPORT /dav/spaces`, whose XML search pattern can trigger SQL detector `942100`;
+- saving Markdown notes through WebDAV, whose XML-parsed content can trigger CRS rules `930120`, `932160`, `932235`, and `932260`;
 - creating and uploading files through TUS endpoints below `/data`, which can trigger CRS rules `911100`, `920340`, `920420`, and `920640`;
-- uploading arbitrary binary content that would otherwise be parsed as form arguments and trigger request-body rules; and
+- uploading arbitrary binary content that would otherwise be parsed as form arguments and trigger request-body rules;
+- uploading plain text files with DAV `PUT`, which can trigger CRS rule `920420`; and
 - storing files with extensions restricted by the generic CRS policy below `/dav/spaces/`, which can trigger CRS rule `920440`.
 
 The rules are scoped by endpoint, request method, content type, or variable wherever possible. Anomaly evaluation remains active; rule `949110` is not removed directly.
