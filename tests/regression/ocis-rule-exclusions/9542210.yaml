@@ -19,7 +19,7 @@ tests:
           data: test
         output:
           log:
-            no_expect_ids: [911100, 949110]
+            no_expect_ids: [911100]
   - test_id: 2
     desc: Keep the method policy outside TUS endpoints
     stages:

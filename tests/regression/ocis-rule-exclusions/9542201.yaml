@@ -17,7 +17,7 @@ tests:
           uri: /dav/spaces/space-id/driver.dll
         output:
           log:
-            no_expect_ids: [920440, 949110]
+            no_expect_ids: [920440]
   - test_id: 2
     desc: Keep the restricted-extension policy outside the spaces endpoint
     stages:

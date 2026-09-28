@@ -21,7 +21,6 @@ tests:
       log:
         no_expect_ids:
         - 942100
-        - 949110
 - test_id: 2
   desc: Keep SQL detector for other methods
   stages:
@@ -107,7 +106,6 @@ tests:
       log:
         no_expect_ids:
         - 942100
-        - 949110
 - test_id: 7
   desc: Keep XML detector for neighboring media type
   stages:

@@ -34,7 +34,7 @@ jobs:
         run: |
           mkdir -p "tests/logs/$BACKEND"
           chmod a+rw "tests/logs/$BACKEND"
-          git -C crs rev-parse HEAD
+          git -C crs rev-parse HEAD | tee tests/crs-revision.txt
           docker compose -f tests/integration/docker-compose.yml up -d "$BACKEND"
           curl --retry 10 --retry-all-errors --retry-delay 2 --retry-max-time 60 --max-time 5 http://localhost/ -o /dev/null
       - name: Run plugin tests
@@ -46,14 +46,25 @@ jobs:
       - name: Capture container logs
         if: always()
         run: docker compose -f tests/integration/docker-compose.yml logs --no-color > tests/containers.log 2>&1
-      - name: Report failures
-        if: failure()
+      - name: Report test diagnostics
+        if: always()
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p = Path('tests/results.log')
           if p.exists():
               report = p.read_text()
+              print('::notice::' + report.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
+          detections = set()
+          for log in Path('tests/logs').glob('*/error.log'):
+              for line in log.read_text(errors='replace').splitlines():
+                  rule = re.search(r'\[id "(\d+)"\]', line)
+                  message = re.search(r'\[msg "([^\"]*)"\]', line)
+                  if rule and message:
+                      detections.add((int(rule[1]), message[1]))
+          if detections:
+              report = '\n'.join(f'{rule}: {message}' for rule, message in sorted(detections))
               print('::notice::' + report.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
           PY
       - name: Preserve test logs
@@ -65,6 +76,7 @@ jobs:
             tests/logs/
             tests/results.log
             tests/containers.log
+            tests/crs-revision.txt
           retention-days: 7
       - name: Stop test containers
         if: always()
@@ -90,7 +102,7 @@ jobs:
         working-directory: tests/coraza
         env:
           CRS_DIR: ${{ github.workspace }}/crs
-        run: go test -mod=readonly -v ./... 2>&1 | tee results.log
+        run: go test -count=1 -mod=readonly -v ./... 2>&1 | tee results.log
       - name: Preserve Coraza results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

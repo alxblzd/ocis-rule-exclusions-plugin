@@ -16,7 +16,7 @@ Compatibility can vary between oCIS and CRS releases. Test the plugin in a non-p
 
 ## Covered false positives
 
-Version 0.1.5 covers the following oCIS workflows observed in this deployment:
+Version 0.1.6 covers the following oCIS workflows observed in this deployment:
 
 - loading `/config.json` or `/web/config.json`, which can trigger CRS rule `930130`;
 - using OData `$filter` and `$orderby` parameters on supported Graph endpoints, which can trigger CRS rule `942290`;
@@ -44,7 +44,7 @@ This is a local allocation and is not registered or reserved with the OWASP CRS 
 
 ## Template alignment
 
-The repository follows the CRS template conventions for plugin filenames and load order, the opt-in disable variable, the `...099` disable rule, request-rule ID allocation, per-rule documentation, FTW regression-test layout, and commit-pinned reusable CI workflows.
+The repository follows the CRS template conventions for plugin filenames and load order, the opt-in disable variable, the `...099` disable rule, request-rule ID allocation, per-rule documentation and FTW regression-test layout. CI actions are pinned to commits and container images to digests.
 
 The three standard plugin files are present. The `-after.conf` file intentionally contains no active rules because this plugin currently defines request exclusions only. Unlike the official template repository, this personal project has no external attribution file, does not inherit the CRS Renovate configuration, does not claim a registered rule-ID allocation, and is not submitted to the CRS plugin registry.
 
@@ -72,7 +72,7 @@ Higher CRS paranoia levels, third-party integrations, and custom clients may pro
 
 ### Engine compatibility
 
-The plugin uses standard `ctl` actions rather than an engine-specific `RAW` request-body processor. It is intended to remain portable across ModSecurity 2, libModSecurity 3, and Coraza, but it is currently validated against Coraza with CRS 4.29.0 in my environment. Treat compatibility with any other engine or deployment as unverified until its tests pass there.
+The plugin uses standard `ctl` actions rather than an engine-specific `RAW` request-body processor. CI checks targeted exclusions on Apache/ModSecurity and Nginx/libModSecurity at paranoia level 4 with CRS 4.25.1 and the current CRS main branch. A separate Coraza 3.7.0 suite uses CRS 4.29.0 at paranoia level 1, matching the validated deployment. Passing targeted exclusions at PL4 does not guarantee that every legitimate request is free of other PL4 detections.
 
 ## Testing
 
@@ -87,7 +87,30 @@ If a standard oCIS workflow is blocked by CRS, open an [issue](https://github.co
 
 Do not include credentials, access tokens, personal data, or file contents in reports.
 
-Regression tests are stored below `tests/regression/ocis-rule-exclusions`. The GitHub Actions workflows run only in this repository with read-only repository permissions and without inherited secrets. They call public, commit-pinned reusable test workflows maintained by the CRS project; this does not submit the plugin, publish results to CRS, or modify any upstream repository.
+Regression tests are stored below `tests/regression/ocis-rule-exclusions`. Each FTW case asserts the specific detector IDs that the exclusion must remove or preserve. Global anomaly rule `949110` is deliberately not part of these PL4 compatibility assertions: additional high-paranoia detections may legitimately remain.
+
+The Coraza suite in `tests/coraza` reuses those same requests and additionally requires every positive case to avoid `949110` and request-body parsing rule `200002` at PL1. It also disables the plugin for three control requests and verifies that the original detectors and anomaly blocking return. Run it with Go 1.25.7 and a CRS 4.29.0 checkout:
+
+```sh
+cd tests/coraza
+CRS_DIR=/absolute/path/to/coreruleset go test -count=1 -mod=readonly -v ./...
+```
+
+The versioned container configuration is `tests/integration/docker-compose.yml`. To reproduce ModSecurity tests, check out the desired CRS version into `crs/` at the repository root, install go-ftw 2.4.0 as `./ftw`, then run:
+
+```sh
+mkdir -p tests/logs/nginx
+chmod a+rw tests/logs/nginx
+docker compose -f tests/integration/docker-compose.yml up -d nginx
+# Wait for the WAF to accept HTTP requests before running FTW.
+./ftw check -d tests/regression
+FTW_LOGFILE=tests/logs/nginx/error.log ./ftw run -d tests/regression --report-triggered-rules --store-failure-waf-logs
+docker compose -f tests/integration/docker-compose.yml down --volumes
+```
+
+CI runs all four ModSecurity combinations even if one fails, retains test and container logs for seven days, and always removes its containers. Pipeline failures propagate through log capture. Workflows have read-only repository permissions; they do not publish or modify upstream repositories.
+
+Version 0.1.6 corrects the test contract introduced in 0.1.5 and adds automated Coraza coverage. It does not broaden the production exclusions.
 
 ## Project status
 

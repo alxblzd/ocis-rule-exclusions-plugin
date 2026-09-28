@@ -18,4 +18,4 @@ tests:
           data: opaque-upload-body
         output:
           log:
-            no_expect_ids: [920340, 920640, 949110]
+            no_expect_ids: [920340, 920640]

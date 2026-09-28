@@ -21,7 +21,6 @@ tests:
       log:
         no_expect_ids:
         - 920420
-        - 949110
 - test_id: 2
   desc: Keep type policy outside DAV
   stages:

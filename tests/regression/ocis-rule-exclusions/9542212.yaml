@@ -19,7 +19,7 @@ tests:
           data: "binary%00payload%0D%0A"
         output:
           log:
-            no_expect_ids: [920250, 920270, 920420, 921150, 949110]
+            no_expect_ids: [920250, 920270, 920420, 921150]
   - test_id: 2
     desc: Allow an oCIS binary upload to a space
     stages:
@@ -35,7 +35,7 @@ tests:
           data: "binary%00payload%0D%0A"
         output:
           log:
-            no_expect_ids: [920250, 920270, 920420, 921150, 949110]
+            no_expect_ids: [920250, 920270, 920420, 921150]
   - test_id: 3
     desc: Keep the content-type policy outside upload endpoints
     stages:
@@ -68,4 +68,4 @@ tests:
           data: "PDF%00payload%0D%0A"
         output:
           log:
-            no_expect_ids: [920250, 920270, 920420, 921150, 949110]
+            no_expect_ids: [920250, 920270, 920420, 921150]

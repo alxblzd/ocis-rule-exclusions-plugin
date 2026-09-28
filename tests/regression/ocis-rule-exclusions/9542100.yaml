@@ -17,7 +17,7 @@ tests:
           uri: /config.json
         output:
           log:
-            no_expect_ids: [930130, 949110]
+            no_expect_ids: [930130]
   - test_id: 2
     desc: Allow the runtime configuration file below the web prefix
     stages:
@@ -31,4 +31,4 @@ tests:
           uri: /web/config.json
         output:
           log:
-            no_expect_ids: [930130, 949110]
+            no_expect_ids: [930130]

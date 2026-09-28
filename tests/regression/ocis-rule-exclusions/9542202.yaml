@@ -19,7 +19,7 @@ tests:
           data: "<note>/etc/passwd; find /etc -name passwd -exec cat {} +; printf dW5hbWUgLWE= | base64 -d | sh</note>"
         output:
           log:
-            no_expect_ids: [930120, 932160, 932235, 932260, 949110]
+            no_expect_ids: [930120, 932160, 932235, 932260]
   - test_id: 2
     desc: Keep XML body inspection outside Markdown files in oCIS spaces
     stages:
