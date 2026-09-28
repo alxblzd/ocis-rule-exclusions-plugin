@@ -53,9 +53,8 @@ jobs:
           from pathlib import Path
           p = Path('tests/results.log')
           if p.exists():
-              for line in p.read_text().splitlines():
-                  if 'failed' in line.lower() or 'triggered' in line.lower():
-                      print('::notice::' + line.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
+              report = p.read_text()
+              print('::notice::' + report.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
           PY
       - name: Preserve test logs
         if: always()
