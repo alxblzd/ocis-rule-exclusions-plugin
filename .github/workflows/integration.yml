@@ -1,12 +1,65 @@
 ---
-# Personal repository CI only. No secrets are passed to the reusable workflow,
-# and the job has read-only access to this repository.
-on: [push, pull_request] # yamllint disable-line rule:truthy
 name: Personal repository integration tests
-
+on: [push, pull_request] # yamllint disable-line rule:truthy
 permissions:
   contents: read
-
 jobs:
-  integration-tests:
-    uses: coreruleset/crs-plugin-test-action/.github/workflows/integration.yaml@81cb7f29881911c56f33a82d1e25dc26e0e13636 # v3.0.2
+  modsecurity:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        backend: [apache, nginx]
+        crs: [v4.25.1, main]
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: coreruleset/coreruleset
+          ref: ${{ matrix.crs }}
+          path: crs
+          persist-credentials: false
+      - name: Install FTW
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download -R coreruleset/go-ftw v2.4.0 -p 'ftw_*_linux_amd64.tar.gz' -O - | tar -xzf - ftw
+      - name: Start WAF
+        env:
+          BACKEND: ${{ matrix.backend }}
+        run: |
+          mkdir -p "tests/logs/$BACKEND"
+          chmod a+rw "tests/logs/$BACKEND"
+          git -C crs rev-parse HEAD
+          docker compose -f tests/integration/docker-compose.yml up -d "$BACKEND"
+          curl --retry 10 --retry-connrefused --retry-delay 1 --max-time 30 http://localhost/ -o /dev/null
+      - name: Run plugin tests
+        env:
+          FTW_LOGFILE: tests/logs/${{ matrix.backend }}/error.log
+        run: |
+          ./ftw check -d tests/regression
+          ./ftw run -d tests/regression --report-triggered-rules --store-failure-waf-logs 2>&1 | tee tests/results.log
+      - name: Report failures
+        if: failure()
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('tests/results.log')
+          if p.exists():
+              for line in p.read_text().splitlines():
+                  if 'failed' in line.lower() or 'triggered' in line.lower():
+                      print('::notice::' + line.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
+          PY
+      - name: Preserve test logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: modsecurity-${{ matrix.backend }}-${{ matrix.crs }}
+          path: |
+            tests/logs/
+            tests/results.log
+          retention-days: 7
+      - name: Stop test containers
+        if: always()
+        run: docker compose -f tests/integration/docker-compose.yml down --volumes
