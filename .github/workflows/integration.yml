@@ -3,6 +3,9 @@ name: Personal repository integration tests
 on: [push, pull_request] # yamllint disable-line rule:truthy
 permissions:
   contents: read
+defaults:
+  run:
+    shell: bash
 jobs:
   modsecurity:
     runs-on: ubuntu-24.04
